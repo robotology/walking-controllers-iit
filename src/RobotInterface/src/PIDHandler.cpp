@@ -452,7 +452,7 @@ bool WalkingPIDHandler::getPID(PIDmap& output)
         yarp::dev::Pid pid;
 
         if (m_axisInfo->getAxisName(ax, axisName)) {
-            if (m_pidInterface->getPid(yarp::dev::VOCAB_PIDTYPE_POSITION, ax, &pid)) {
+            if (m_pidInterface->getPid(yarp::dev::PidControlTypeEnum::VOCAB_PIDTYPE_POSITION, ax, &pid)) {
                 std::pair<PIDmap::iterator, bool> result = output.insert(PIDmap::value_type(axisName, pid));
                 if (!result.second) {
                     yError("Error while inserting an item in the output map");
@@ -486,7 +486,7 @@ bool WalkingPIDHandler::setPID(const PIDmap &pidMap)
         AxisMap::const_iterator axis = m_axisMap.find(pid->first);
 
         if (axis != m_axisMap.cend()){
-            if (!m_pidInterface->setPid(yarp::dev::VOCAB_PIDTYPE_POSITION, axis->second, pid->second)) {
+            if (!m_pidInterface->setPid(yarp::dev::PidControlTypeEnum::VOCAB_PIDTYPE_POSITION, axis->second, pid->second)) {
                 yError() << "Error while setting the PID on " << axis->first;
                 return false;
             }
@@ -512,7 +512,7 @@ bool WalkingPIDHandler::setPID(const PIDmap &pidMap, const AxisMap &axisMap, dou
         AxisMap::const_iterator axis = axisMap.find(pid->first);
 
         if (axis != axisMap.cend()){
-            if (!m_pidInterface->setPid(yarp::dev::VOCAB_PIDTYPE_POSITION, axis->second, pid->second)) {
+            if (!m_pidInterface->setPid(yarp::dev::PidControlTypeEnum::VOCAB_PIDTYPE_POSITION, axis->second, pid->second)) {
                 yError() << "Error while setting the PID on " << axis->first;
                 return false;
             }
@@ -539,7 +539,7 @@ bool WalkingPIDHandler::setAndRestorePIDs(const PIDmap &newPIDmap, const PIDmap 
                 AxisMap::const_iterator axis = axisMap.find(oldPID->first);
 
                 if (axis != axisMap.cend()){
-                    if (!m_pidInterface->setPid(yarp::dev::VOCAB_PIDTYPE_POSITION, axis->second, defaultPID->second)) {
+                    if (!m_pidInterface->setPid(yarp::dev::PidControlTypeEnum::VOCAB_PIDTYPE_POSITION, axis->second, defaultPID->second)) {
                         yError() << "Error while setting the default PID on " << axis->first;
                         return false;
                     }
