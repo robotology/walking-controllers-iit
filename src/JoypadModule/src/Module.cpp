@@ -174,7 +174,7 @@ bool JoypadModule::close()
 bool JoypadModule::updateModule()
 {
     yarp::os::Bottle cmd, outcome;
-    float prepare{0.0}, start{0.0},
+    double prepare{0.0}, start{0.0},
         stop{0.0}, pause{0.0},
         connectGoal{0.0}, connectRpc{0.0}, disconnect{0.0};
 

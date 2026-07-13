@@ -436,7 +436,7 @@ bool RobotInterface::configureRobot(const yarp::os::Searchable& config)
         m_jointVelocitiesBounds(i) = iDynTree::deg2rad(maxVelocity);
 
 
-        if(!m_limitsInterface->getLimits(i, &minAngle, &maxAngle))
+        if(!m_limitsInterface->getPosLimits(i, &minAngle, &maxAngle))
         {
             yError() << "[configure] Unable get the position limits of the joint: "
                      << m_axesList[i];
@@ -471,7 +471,7 @@ bool RobotInterface::configureRobot(const yarp::os::Searchable& config)
 
 
     // set the default control mode
-    if(!m_interactionInterface->getInteractionModes(m_currentJointInteractionMode.data()))
+    if(!m_interactionInterface->getInteractionModes(m_currentJointInteractionMode))
     {
         yError() << "[RobotHelper::configure] Unable to get the interaction mode.";
         return  false;
@@ -834,14 +834,14 @@ bool RobotInterface::switchToControlMode(const int& controlMode)
     }
 
     // set the control interface
-    std::vector<int> controlModes(m_actuatedDOFs, controlMode);
-    if(!m_controlModeInterface->setControlModes(controlModes.data()))
+    std::vector<yarp::dev::SelectableControlModeEnum> controlModes(m_actuatedDOFs, static_cast<yarp::dev::SelectableControlModeEnum>(controlMode));
+    if(!m_controlModeInterface->setControlModes(controlModes))
     {
         yError() << "[RobotInterface::switchToControlMode] Error while setting the controlMode. Trying joint by joint";
 
         for (size_t i = 0; i < m_actuatedDOFs; i++)
         {
-            if (!m_controlModeInterface->setControlMode(static_cast<int>(i), controlMode) && m_isGoodTrackingRequired[i])
+            if (!m_controlModeInterface->setControlMode(static_cast<int>(i), static_cast<yarp::dev::SelectableControlModeEnum>(controlMode)) && m_isGoodTrackingRequired[i])
             {
                 yError() << "[RobotInterface::switchToControlMode] Error while setting the controlMode of" << m_axesList[i] << "and it requires good tracking.";
                 return false;
@@ -862,7 +862,7 @@ bool RobotInterface::setInteractionMode(std::vector<yarp::dev::InteractionModeEn
 {
     if(m_currentJointInteractionMode != interactionModes)
     {
-        bool ok = m_interactionInterface->setInteractionModes(interactionModes.data());
+        bool ok = m_interactionInterface->setInteractionModes(interactionModes);
         if (ok)
             m_currentJointInteractionMode = interactionModes;
 
@@ -939,7 +939,7 @@ bool RobotInterface::setPositionReferences(const iDynTree::VectorDynSize& desire
         refSpeeds[i] = std::max(3.0, iDynTree::rad2deg(absoluteJointErrorRad) / positioningTimeSec);
     }
 
-    if(!m_positionInterface->setRefSpeeds(refSpeeds.data()))
+    if(!m_positionInterface->setTrajSpeeds(refSpeeds.data()))
     {
         yError() << "[RobotInterface::setPositionReferences] Error while setting the desired speed of joints.";
         return false;
@@ -969,7 +969,7 @@ bool RobotInterface::checkMotionDone(bool& motionDone)
     }
 
     bool checkMotionDone = false;
-    m_positionInterface->checkMotionDone(&checkMotionDone);
+    m_positionInterface->checkMotionDone(checkMotionDone);
 
     std::pair<size_t, double> worstError;
     if (!getWorstError(m_desiredJointPositionRad, worstError))

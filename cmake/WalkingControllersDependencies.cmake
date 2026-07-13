@@ -2,7 +2,7 @@
 # Find all packages
 
 find_package(Threads REQUIRED)
-find_package(YARP 3.6.0 REQUIRED)
+find_package(YARP 4.0.0 REQUIRED)
 find_package(ICUB REQUIRED)
 find_package(ICUBcontrib REQUIRED)
 find_package(iDynTree 10.0.0 REQUIRED)
