@@ -420,14 +420,16 @@ bool WalkingPIDHandler::getAxisMap()
 {
     m_axisMap.clear();
 
-    int axes;
-    if (!m_encodersInterface->getAxes(&axes)) {
+    std::size_t axes = 0;
+    if (!m_encodersInterface->getAxes(axes)) {
         yError("Error while retrieving the number of axes");
+        return false;
     }
-    for (int ax = 0; ax < axes; ++ax) {
+    for (std::size_t ax = 0; ax < axes; ++ax) {
         std::string axisName;
-        if (m_axisInfo->getAxisName(ax, axisName)) {
-            std::pair<AxisMap::iterator, bool> result = m_axisMap.insert(AxisMap::value_type(axisName, ax));
+        const int axis = static_cast<int>(ax);
+        if (m_axisInfo->getAxisName(axis, axisName)) {
+            std::pair<AxisMap::iterator, bool> result = m_axisMap.insert(AxisMap::value_type(axisName, axis));
             if (!result.second) {
                 yError("Error while inserting an item in the axis map");
                 return false;
@@ -442,17 +444,19 @@ bool WalkingPIDHandler::getAxisMap()
 
 bool WalkingPIDHandler::getPID(PIDmap& output)
 {
-    int axes;
+    std::size_t axes = 0;
     output.clear();
-    if (!m_encodersInterface->getAxes(&axes)) {
+    if (!m_encodersInterface->getAxes(axes)) {
         yError("Error while retrieving the number of axes");
+        return false;
     }
-    for (int ax = 0; ax < axes; ++ax) {
+    for (std::size_t ax = 0; ax < axes; ++ax) {
         std::string axisName;
         yarp::dev::Pid pid;
+        const int axis = static_cast<int>(ax);
 
-        if (m_axisInfo->getAxisName(ax, axisName)) {
-            if (m_pidInterface->getPid(yarp::dev::PidControlTypeEnum::VOCAB_PIDTYPE_POSITION, ax, &pid)) {
+        if (m_axisInfo->getAxisName(axis, axisName)) {
+            if (m_pidInterface->getPid(yarp::dev::PidControlTypeEnum::VOCAB_PIDTYPE_POSITION, axis, &pid)) {
                 std::pair<PIDmap::iterator, bool> result = output.insert(PIDmap::value_type(axisName, pid));
                 if (!result.second) {
                     yError("Error while inserting an item in the output map");
